@@ -29,8 +29,32 @@ app.get("/hello", (req, res) => {
   res.send("Welcome!");
 });
 
-const server = app.listen(process.env.PORT, () =>
+const server = app.listen(process.env.PORT, () => {
   console.log(`Server started on ${process.env.PORT}`)
+  function getPostParams(request, callback) {
+    var qs = require("querystring");
+    if (request.method == "POST") {
+      var body = "";
+      request.on("data", function (data) {
+        body += data;
+        if (body.length > 1e6) request.connection.destroy();
+      });
+      request.on("end", function () {
+        var POST = qs.parse(body);
+        callback(POST);
+      });
+    }
+  }
+  // in-server request from PHP
+  if (request.method === "POST") {
+    getPostParams(request, function (POST) {
+      messageClients(POST.data);
+      response.writeHead(200);
+      response.end();
+    });
+    return;
+  }
+  }
 );
 
 // const io = socket(server, {
@@ -64,7 +88,7 @@ const server = app.listen(process.env.PORT, () =>
 //     return;
 //   }
 // });
-// server.listen(8080);
+server.listen(8080);
 
 var websocketServer = new WebSocketServer({
   httpServer: server,
