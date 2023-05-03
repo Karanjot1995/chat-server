@@ -29,41 +29,8 @@ app.get("/hello", (req, res) => {
   res.send("Welcome!");
 });
 
-const server = app.listen(process.env.PORT, () => {
-  console.log(`Server started on ${process.env.PORT}`)
-  function getPostParams(request, callback) {
-    var qs = require("querystring");
-    if (request.method == "POST") {
-      var body = "";
-      request.on("data", function (data) {
-        body += data;
-        if (body.length > 1e6) request.connection.destroy();
-      });
-      request.on("end", function () {
-        var POST = qs.parse(body);
-        callback(POST);
-      });
-    }
-  }
-  // in-server request from PHP
-  if (request.method === "POST") {
-    getPostParams(request, function (POST) {
-      messageClients(POST.data);
-      response.writeHead(200);
-      response.end();
-    });
-    return;
-  }
-  }
-);
-
-// const io = socket(server, {
-//   cors: {
-//     origin: ["http://localhost:3000", "https://kxs9016.uta.cloud"],
-//     credentials: true,
-//   },
-// });
-// var server = http.createServer(function (request, response) {
+// const server = app.listen(process.env.PORT, (request, response) => {
+//   console.log(`Server started on ${process.env.PORT}`)
 //   function getPostParams(request, callback) {
 //     var qs = require("querystring");
 //     if (request.method == "POST") {
@@ -87,7 +54,43 @@ const server = app.listen(process.env.PORT, () => {
 //     });
 //     return;
 //   }
+//   }
+// );
+
+// const io = socket(server, {
+//   cors: {
+//     origin: ["http://localhost:3000", "https://kxs9016.uta.cloud"],
+//     credentials: true,
+//   },
 // });
+var server = http.createServer(function (request, response) {
+  response.setHeader("Content-Type", "application/json");
+  response.writeHead(200);
+  response.end(`{"message": "This is a JSON response"}`);
+  function getPostParams(request, callback) {
+    var qs = require("querystring");
+    if (request.method == "POST") {
+      var body = "";
+      request.on("data", function (data) {
+        body += data;
+        if (body.length > 1e6) request.connection.destroy();
+      });
+      request.on("end", function () {
+        var POST = qs.parse(body);
+        callback(POST);
+      });
+    }
+  }
+  // in-server request from PHP
+  if (request.method === "POST") {
+    getPostParams(request, function (POST) {
+      messageClients(POST.data);
+      response.writeHead(200);
+      response.end();
+    });
+    return;
+  }
+});
 server.listen(8080);
 
 var websocketServer = new WebSocketServer({
