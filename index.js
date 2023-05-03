@@ -64,9 +64,7 @@ app.get("/hello", (req, res) => {
 //   },
 // });
 var server = http.createServer(function (request, response) {
-  response.setHeader("Content-Type", "application/json");
-  response.writeHead(200);
-  response.end(`{"message": "This is a JSON response"}`);
+  
   function getPostParams(request, callback) {
     var qs = require("querystring");
     if (request.method == "POST") {
@@ -89,6 +87,9 @@ var server = http.createServer(function (request, response) {
       response.end();
     });
     return;
+  }else{
+    response.writeHead(200);
+    response.end(`{"message": "This is a JSON response"}`);
   }
 });
 server.listen(8080);
